@@ -10,7 +10,7 @@ netatmoCreds = NetatmoCreds()
 token = os.environ.get("INFLUXDB_TOKEN")
 org = os.environ.get("INFLUXDB_ORG")
 url = "https://europe-west1-1.gcp.cloud2.influxdata.com"
-client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
+client = influxdb_client.InfluxDBClient(url=url, token=token, org=org, timeout=os.environ.get("INFLUXDB_TIMEOUT"))
 bucket = os.environ.get("INFLUXDB_SENSOR_BUCKET")
 
 write_api = client.write_api(write_options=SYNCHRONOUS)
