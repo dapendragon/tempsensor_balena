@@ -38,18 +38,28 @@ def fetch_netatmo_data():
 
 for line in fileinput.input():
     data = json.loads(line.rstrip())
-    netatmo_data = fetch_netatmo_data()
+    outside = data['id'] == int(os.environ.get("OUTDOOR_SENSOR_ID"))
+    sdr_desc = "weather_data"
+    sdr_source = "SDR"
+
+    if not outside:
+        sdr_desc = "filament_data"
+        sdr_source = "indoor_SDR"
 
     influx_packet = [
-        Point("weather_data")
+        Point(sdr_desc)
         .field("temperature", data["temperature_C"])
         .field("humidity", data["humidity"])
-        .tag("source", "SDR"),
-
-        Point("netatmo_data")
-        .field("temperature", netatmo_data["temp"])
-        .field("humidity", netatmo_data["humidity"])
-        .tag("source", "Netatmo"),
+        .tag("source", sdr_source)
     ]
+
+    if outside:
+        netatmo_data = fetch_netatmo_data()
+        influx_packet.append(
+            Point("netatmo_data")
+            .field("temperature", netatmo_data["temp"])
+            .field("humidity", netatmo_data["humidity"])
+            .tag("source", "Netatmo")
+        )
 
     write_api.write(bucket=bucket, org=os.environ.get("INFLUXDB_ORG"), record=influx_packet)
