@@ -24,7 +24,7 @@ make
 make install
 cd ../..
 echo "***** done building rtl_433"
-pip3 install influxdb-client
+pip3 install influxdb3-python
 pip3 install requests
 
 
